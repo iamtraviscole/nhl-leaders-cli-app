@@ -1,35 +1,58 @@
 class CLI
 
-  @@year = nil
+  attr_reader :year
+
+  def initialize
+    @leaders = []
+  end
 
   def call
-    year=
+    CLI.new
+    year_set
+    add_leaders
     list_leaders
     player_details
     bye
   end
 
-  def year=
-    puts "Enter a year between 1918 and #{Time.new.year} to see the stats leaders for that NHL season (19xx)"
-    input = gets.chomp
-    if input.between?(1918,"#{Time.new.year}".to_i)
-      @@year = gets.chomp
+  def year_set(input = nil)
+    if input == nil
+      puts "Please enter a year between 1918 and #{Time.new.year} to see the stats leaders for that NHL season"
+      input = gets.chomp.to_i
+      year_set(input)
     else
-      puts "Invalid year - Please enter a year between 1918 and #{Time.new.year} or exit"
+      case input
+      when 2005
+        puts "There was no 2005 NHL season due to a lockout, please enter a new year between 1918 and #{Time.new.year}"
+        input = gets.chomp.to_i
+        year_set(input)
+      when 1918 .. "#{Time.new.year}".to_i
+        @year = input
+      else
+        puts "Invalid year, please enter a new year between 1918 and #{Time.new.year}"
+        input = gets.chomp.to_i
+        year_set(input)
+      end
+    end
   end
 
-  def year
-    @@year
+  def add_leaders
+    # leaders = Scraper.scrape_leaders("http://www.hockey-reference.com/leagues/NHL_#{self.year}_leaders.html")
+    @leaders << Scraper.scrape_leaders
   end
 
-  def scrape_from_year
-    Scraper.scrape_main_url("http://www.hockey-reference.com/leagues/NHL_#{self.year}_leaders.html")
+  def add_players
+    #loop through array and make Players from hash created with #scrape_from_year
+    Scraper.scrape_players()
+    Player.create_from_hash(self.make_leaders)
   end
 
   def list_leaders
-    puts "Goals: Sidney Crosby"
-    puts "Assists: Connor McDavid"
-    puts "Points: Connor McDavid"
+    puts "#{self.year.to_s} NHL Season Leaders:"
+    puts "Goals: #{@leaders[0][:goals_leader_name]} - #{@leaders[0][:goals]}"
+    puts "Assists: #{@leaders[0][:assists_leader_name]} - #{@leaders[0][:assists]}"
+    puts "Points: #{@leaders[0][:points_leader_name]} - #{@leaders[0][:points]}"
+
   end
 
   def player_details
