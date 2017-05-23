@@ -10,6 +10,7 @@ class CLI
     CLI.new
     year_set
     add_leaders
+    # make_players
     list_leaders
     player_details
     bye
@@ -37,27 +38,28 @@ class CLI
   end
 
   def add_leaders
-    # leaders = Scraper.scrape_leaders("http://www.hockey-reference.com/leagues/NHL_#{self.year}_leaders.html")
-    @leaders << Scraper.scrape_leaders
+    @leaders << Scraper.scrape_leaders("http://www.hockey-reference.com/leagues/NHL_#{self.year}_leaders.html")
+    # @leaders << Scraper.scrape_leaders
   end
 
-  def add_players
-    #loop through array and make Players from hash created with #scrape_from_year
-    Scraper.scrape_players()
-    Player.create_from_hash(self.make_leaders)
+  def make_players
+    base_url = "http://www.hockey-reference.com"
+    Player.new(base_url + @leaders[0][:goal_leader_url])
+    Player.new(base_url + @leaders[0][:assist_leader_url])
+    Player.new(base_url + @leaders[0][:points_leader_url])
   end
 
   def list_leaders
     puts "#{self.year.to_s} NHL Season Leaders:"
-    puts "Goals: #{@leaders[0][:goals_leader_name]} - #{@leaders[0][:goals]}"
-    puts "Assists: #{@leaders[0][:assists_leader_name]} - #{@leaders[0][:assists]}"
-    puts "Points: #{@leaders[0][:points_leader_name]} - #{@leaders[0][:points]}"
+    puts "Goals: #{@leaders[0][:goal_leader_name]} - #{@leaders[0][:goals]}"
+    puts "Assists: #{@leaders[0][:assist_leader_name]} - #{@leaders[0][:assists]}"
+    puts "Points: #{@leaders[0][:point_leader_name]} - #{@leaders[0][:points]}"
 
   end
 
   def player_details
-    puts "Enter player name for more information about that player"
-    input = gets.chomp.downcase
+    puts "Enter one of the player name's above for more information about that player"
+    input = gets.chomp.gsub(" ", "").downcase
     # list player's height, weight, age etc.
   end
 
