@@ -68,6 +68,7 @@ class CLI
       elsif input == "exit"
         bye
       elsif input == "menu"
+        LeaderScraper.clear_leaders
         call
       else
         puts "Invalid name"

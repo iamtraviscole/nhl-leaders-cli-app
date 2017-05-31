@@ -35,4 +35,8 @@ class LeaderScraper
     @@leaders << leader_hash
   end
 
+  def self.clear_leaders
+    @@leaders.clear
+  end
+
 end
