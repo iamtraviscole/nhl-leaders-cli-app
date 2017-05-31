@@ -2,18 +2,16 @@ class CLI
 
   attr_reader :year
 
-  def initialize
-    @leaders = []
-  end
-
   def call
-    CLI.new
     year_set
     add_leaders
-    make_players
     list_leaders
     player_details
     bye
+  end
+
+  def menu
+
   end
 
   def year_set(input = nil)
@@ -40,22 +38,16 @@ class CLI
   end
 
   def add_leaders
-    @leaders << Scraper.scrape_leaders("http://www.hockey-reference.com/leagues/NHL_#{self.year}_leaders.html")
-  end
-
-  def make_players
-    Player.new("#{@leaders[0][:goal_leader_url]}")
-    Player.new("#{@leaders[0][:assist_leader_url]}")
-    Player.new("#{@leaders[0][:point_leader_url]}")
+    LeaderScraper.scrape_leaders("http://www.hockey-reference.com/leagues/NHL_#{self.year}_leaders.html")
   end
 
   def list_leaders
     puts "------------------------------"
     puts "#{self.year.to_s} NHL Season Leaders:"
     puts "------------------------------"
-    puts "Goals: #{@leaders[0][:goal_leader_name]} - #{@leaders[0][:goals]}"
-    puts "Assists: #{@leaders[0][:assist_leader_name]} - #{@leaders[0][:assists]}"
-    puts "Points: #{@leaders[0][:point_leader_name]} - #{@leaders[0][:points]}"
+    puts "Goals: #{LeaderScraper.leaders[0][:goal_leader_name]} - #{LeaderScraper.leaders[0][:goals]}"
+    puts "Assists: #{LeaderScraper.leaders[0][:assist_leader_name]} - #{LeaderScraper.leaders[0][:assists]}"
+    puts "Points: #{LeaderScraper.leaders[0][:point_leader_name]} - #{LeaderScraper.leaders[0][:points]}"
     puts "------------------------------"
 
   end
@@ -63,7 +55,7 @@ class CLI
   def player_details
     input = ""
     until input == "exit"
-      puts "Enter one of above player's full name for more information about that player or exit"
+      puts "Enter one of above player's full name for more information about that player, 'menu' for main menu, or 'exit'"
       input = gets.chomp.gsub(" ", "").downcase
       if playerchoice = Player.all.detect {|player| player.downcase_name == input}
         puts "------------------------------"
@@ -75,6 +67,8 @@ class CLI
         puts "------------------------------"
       elsif input == "exit"
         bye
+      elsif input == "menu"
+        call
       else
         puts "Invalid name"
       end
